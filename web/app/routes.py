@@ -62,8 +62,10 @@ def notification():
         notification.subject = request.form['subject']
         notification.status = 'Notifications submitted'
         notification.submitted_date = datetime.utcnow()
+        logging.info("Record just created")
 
         try:
+
             db.session.add(notification)
             db.session.commit()
 
@@ -71,16 +73,11 @@ def notification():
             ## TODO: Refactor This logic into an Azure Function
             ## Code below will be replaced by a message queue
             #################################################
-            attendees = Attendee.query.all()
 
-            for attendee in attendees:
-                subject = '{}: {}'.format(attendee.first_name, notification.subject)
-                send_email(attendee.email, subject, notification.message)
+            notification_id = notification.id
 
-            notification.completed_date = datetime.utcnow()
-            notification.status = 'Notified {} attendees'.format(len(attendees))
-            db.session.commit()
-            # TODO Call servicebus queue_client to enqueue notification ID
+            msg = Message(str(notification_id))
+            queue_client.send(msg)
 
             #################################################
             ## END of TODO
@@ -96,7 +93,7 @@ def notification():
 
 
 def send_email(email, subject, body):
-    if not app.config.get('SENDGRID_API_KEY')
+    if not app.config.get('SENDGRID_API_KEY'):
         message = Mail(
             from_email=app.config.get('ADMIN_EMAIL_ADDRESS'),
             to_emails=email,

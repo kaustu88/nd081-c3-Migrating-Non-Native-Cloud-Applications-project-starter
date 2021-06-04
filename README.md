@@ -1,12 +1,12 @@
 # TechConf Registration Website
 
-## Project Overview
+## Project Overview https://technconf.azurewebsites.net/
 The TechConf website allows attendees to register for an upcoming conference. Administrators can also view the list of attendees and notify all attendees via a personalized email message.
 
 The application is currently working but the following pain points have triggered the need for migration to Azure:
  - The web application is not scalable to handle user load at peak
  - When the admin sends out notifications, it's currently taking a long time because it's looping through all attendees, resulting in some HTTP timeout exceptions
- - The current architecture is not cost-effective 
+ - The current architecture is not cost-effective
 
 In this project, you are tasked to do the following:
 - Migrate and deploy the pre-existing web app to an Azure App Service
@@ -59,13 +59,23 @@ You will need to install the following locally:
 2. Re-deploy the web app to publish changes
 
 ## Monthly Cost Analysis
+
 Complete a month cost analysis of each Azure resource to give an estimate total cost using the table below:
-
-| Azure Resource | Service Tier | Monthly Cost |
-| ------------ | ------------ | ------------ |
-| *Azure Postgres Database* |     |              |
-| *Azure Service Bus*   |         |              |
-| ...                   |         |              |
-
+|   Azure Resource            | Service Tier          |  Monthly Cost |
+| ------------                | ------------          | ------------  |
+| *Azure Postgres Database*   |Basic,1 vCore(s),50 GB |      30.00$   |
+| *Azure Service Bus*         |     Basic             |      0.05$    |
+| Function App                |    Consumption        |     0.00$     |
+| App Service                 |    Free Tier          |     0.00$     |
+| Storage Account             | Storage (v1)          |     5.00$     |
 ## Architecture Explanation
-This is a placeholder section where you can provide an explanation and reasoning for your architecture selection for both the Azure Web App and Azure Function.
+
+A modular architecture is used in developing and deploying this application. The front-end, back-end jobs and storage are effectively separated and connected robustly with each other. This help in easy upgrades and maintenance of individual components making up the whole project.
+
+Maintaining the back-end job in a separate function speeds up the front-end application in times of high traffic and ensures strong responsiveness of the application. Essentially the function app being on a consumption plan helps us only pay for what we use and manage the total cost of application.
+
+The app service plan supporting the application helps in easy scale out or scale up of the application as per user traffic needs and also to scale down and scale in when not required. This way we can control the costs of individual components of the application.
+
+The azure web app was already built out, I only had to change the environment variables within config.py and refactor the notification flow within app.py. Everything else was already configured. The costs are reasonable, outside of the PostgreSQL database, which is by far the most expensive part of the architecture. Creating a service bus namespace to handle the notifications is a good idea, but if it could all be saved to a less expensive database that would be the most straightforward way to lower costs. 
+
+Other than changing up the database, everthing else is available at a reasonable cost.
