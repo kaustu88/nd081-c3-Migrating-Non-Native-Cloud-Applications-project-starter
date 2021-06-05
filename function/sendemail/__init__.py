@@ -2,6 +2,7 @@ import logging
 import azure.functions as func
 import psycopg2
 import os
+from azure.servicebus import ServiceBusClient, ServiceBusMessage
 from datetime import datetime
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
